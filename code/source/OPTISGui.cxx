@@ -5268,6 +5268,12 @@ objview->objlist->point_leds[j] = src_leds[j];
 sprintf(st, "Actual Position of %s", TrajectoryName->value());
 posxyz.setValue(0.0, 0.0, 0.0);
 objview->addSphereObject(&st[0], &posxyz, 1, ledRadius, 0);
+
+//edited on 26/11/2013 - dummy variable testing code operation
+sprintf(st, "Position of MIPT", TrajectoryName->value());
+posxyz.setValue(0.0, 0.0, 120.0);
+objview->addSphereObject(&st[0], &posxyz, 1, ledRadius, 0);
+
 //objview->objlist->animated = 1;
 objview->objlist->type = 221 + 1000*TrajCamSysChoice->value();
 //objview->objlist->point = src;
