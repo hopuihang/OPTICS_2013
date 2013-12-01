@@ -238,6 +238,7 @@ void OPTISGui::cb_EditObjects(Fl_Menu_* o, void* v) {
   ((OPTISGui*)(o->parent()->user_data()))->cb_EditObjects_i(o,v);
 }
 
+//radius setup
 inline void OPTISGui::cb_LedR05_i(Fl_Menu_*, void*) {
   ledRadius = 0.5;
 resetLEDs();
@@ -1424,6 +1425,8 @@ TotalSteps->value(mainAnimation->num_steps);
 LEDNameChoice->value(0);
 TrajCamSysChoice->value(tmpdata->camSys);
 // Objekt- und Referenznummern suchen
+//search object and reference number
+
 j = 0;
 TrajObjChoice->value(j+1);
 for (i=0; i<6; i++)
@@ -5270,9 +5273,9 @@ posxyz.setValue(0.0, 0.0, 0.0);
 objview->addSphereObject(&st[0], &posxyz, 1, ledRadius, 0);
 
 //edited on 26/11/2013 - dummy variable testing code operation
-sprintf(st, "Position of MIPT", TrajectoryName->value());
-posxyz.setValue(0.0, 0.0, 120.0);
-objview->addSphereObject(&st[0], &posxyz, 1, ledRadius, 0);
+//sprintf(st, "Position of MIPT", TrajectoryName->value());
+//posxyz.setValue(120.0, 120.0, 120.0);
+//objview->addSphereObject(&st[0], &posxyz, 1, ledRadius, 0);
 
 //objview->objlist->animated = 1;
 objview->objlist->type = 221 + 1000*TrajCamSysChoice->value();
@@ -7680,6 +7683,7 @@ LEDnum = 20;
         o->callback((Fl_Callback*)cb_LEDRefChoice);
       }*/
 //add 060630
+	  //labeling the insert tranjectory by coordinate label
       { Fl_Choice* o = TrajObjChoice = new Fl_Choice(105, 80, 85, 25, "Motion of");
         o->down_box(FL_BORDER_BOX);
         o->menu(menu_TrajObjChoice);
@@ -8535,7 +8539,7 @@ m1.identity();
 
 step = floor(mainAnimation->animation_step);
 dFloor = mainAnimation->animation_step - step;
-if (dFloor > 0.99) // runden (round?)
+if (dFloor > 0.99) // runden (round up value)
 {
    step++;
    dFloor = 0.0;
@@ -9173,6 +9177,7 @@ YCoord->value(tmpdata->point[1]);
 ZCoord->value(tmpdata->point[2]);
 TrajCamSysChoice->value(tmpdata->camSys);
 // Objekt- und Referenznummern suchen
+//search object and reference number
 j = 0;
 TrajObjChoice->value(j+1);
 for (i=0; i<6; i++)
@@ -10158,6 +10163,8 @@ void OPTISGui::insertFOV() {
   SbVec3f  xyz;
 char     st[256];
 int      i;
+int		damx,damy,damz;	
+
 
 xyz.setValue(0.0, 0.0, 0.0);
 for (i=0; i<numLEDs; i++)
@@ -10167,16 +10174,30 @@ for (i=0; i<numLEDs; i++)
    objview->objlist->transform->translation.setValue((-ledRadius*(numLEDs-1))+(2.0*ledRadius*i), 0.0, 0.0);
    objview->objlist->type = 100+i;//100-117 is LED
 }
+
+//edit 29/11/2013
+// testing
+//just the header, dont common it out "ObjectViewer::addSphereObject(char *labelstring, SbVec3f *xyz, int numSpheres, float radius, char coordSys)"
+	damx = 50;
+	damy = 50;
+	damz = 50;
+
+xyz.setValue(damx ,damy ,damz);//dummy variable
+  sprintf(st, "point of MIPT");
+ objview->addSphereObject(&st[0], &xyz, 1, ledRadius, 1);//adding object
+ //objview->objlist->transform->translation.setValue((-ledRadius*(numLEDs-1))+(2.0*ledRadius*i), 0.0, 0.0);
+ //  objview->objlist->type = 100+i;//100-117 is LED
+
 xyz.setValue(0.0, 0.0, 0.0);
 objview->addCubeObject("FOV", &xyz, 1, 200.0, 200.0, 200.0);
 objview->objlist->material->diffuseColor.setValue(1.0, 1.0, 0.0);
 objview->objlist->material->emissiveColor.setValue(1.0, 1.0, 0.0);
 objview->objlist->type = 1;
-//objview->addScaleLines();20130207
+//objview->addScaleLines();//20130207( why common that out?
 objview->objlist->material->diffuseColor.setValue(1.0, 1.0, 0.0);
 objview->objlist->material->emissiveColor.setValue(1.0, 1.0, 0.0);
 objview->objlist->type = 1;
-//objview->addScaleValues();20130207
+//objview->addScaleValues();//20130207 same reason as above
 objview->objlist->material->diffuseColor.setValue(1.0, 1.0, 0.0);
 objview->objlist->material->emissiveColor.setValue(1.0, 1.0, 0.0);
 objview->objlist->type = 1;
@@ -10546,7 +10567,7 @@ if (LEDCtrl2Manual->value() > 0)
    if (LEDNextValue2 == 0)
       return;
    else
-      LEDNextValue2 = 0; // zuruecksetzen (reset? go back?)
+      LEDNextValue2 = 0; // zuruecksetzen (reset? go back?putback?)
 }
 
 if (LEDControl2Browser->size() < 115)
