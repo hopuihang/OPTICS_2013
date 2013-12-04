@@ -25,7 +25,7 @@ Motion::Motion(Preferences *p, Scanfile *s)
 
 	for (i=0; i<10; i++) //from 0 to 9
 	{
-	    animation_trafo[i].makeIdentity(); // do makeIdentity to all the matrix from 1st to 10th row.
+	    animation_trafo[i].makeIdentity(); // do make Identity to all the matrix from 1st to 10th row.
 	    fov_trafo[i].makeIdentity();
 	    mRef[i].makeIdentity();
 	    mUVW[i].makeIdentity();
@@ -239,7 +239,7 @@ char Motion::read_j3dfile(char *filename)//return type:char
 	        // ------------------------------------------------------------
 	        for (i=0; i<3; i++)//each coordinate??
 	        {
-	            if (word[i] != 0x8000)                 //( if the value is valid)   falls (if) Wert(value) gueltig(valid) 
+	            if (word[i] != 0x8000)                 //if the value is not equal heximal 8000 
 				{				                        
 		            if ((j==0)&&(i==0)&&((word[i]&0x4000)!=0)) // (if Bit[14] =1) falls Bit[14] = 1, first i, first j,(Each LED)
        			       click[0].set1Value(pos, 1);	   //(i.e. crack)  d.h. Knacken [Set click = (step_number,1)
@@ -493,7 +493,23 @@ void Motion::BaseTrans(SbVec3d from_base[3], SbVec3d to_base[3], SdMatrix &m)
    SbVec3d base_to[3];//3*3 matrix
    SbVec3d v1;
    SbVec3d v2;
+   int i ;
+   
+   //make up dammy variable edited 2/12/2013
+   for (i=0; i<3; i++)
+    {
+       base_from[i][0] = 0;
+       base_from[i][1] = 0;
+       base_from[i][2] = 0;
+    }
+	for (i=0; i<3; i++)
+    {
+       base_to[i][0] = 100;
+       base_to[i][1] = 100;
+       base_to[i][2] = 100;
+    }
 
+	/*
    v1 = from_base[1] - from_base[0];
    v2 = from_base[2] - from_base[0];
    base_from[0] = v1;
@@ -508,7 +524,7 @@ void Motion::BaseTrans(SbVec3d from_base[3], SbVec3d to_base[3], SdMatrix &m)
    base_to[0].normalize();
    base_to[2].normalize();
    base_to[1] = base_to[2].cross(base_to[0]);
-
+   */
    Vec2BaseTrans(base_from, base_to, from_base[0], to_base[0], m);
 }
 
@@ -517,11 +533,25 @@ void Motion::SpheresToLeds()
 /*--------------------------------*/
 {
     int      i;
-    SbVec3d  base_ref[3];
+    SbVec3d  base_ref[3]; 
     SbVec3d  base_xyz[3];
     SbVec3d  led_top, led_front, led_back;
     SbVec3d  v1, v2, origin;
+	//making up dammy varaible 2/12/2013
+	for (i=0; i<3; i++)
+    {
+       base_ref[i][0] = 0;
+       base_ref[i][1] = 0;
+       base_ref[i][2] = 0;
+    }
+	for (i=0; i<3; i++)
+    {
+       base_ref[i][0] = 100;
+       base_ref[i][1] = 100;
+       base_ref[i][2] = 100;
+    }
 
+	/*
     for (i=0; i<3; i++)
     {
        base_ref[i][0] = scnfile->scanref[i].cal_x;
@@ -558,6 +588,9 @@ void Motion::SpheresToLeds()
     base_xyz[1] = led_front;
     base_xyz[2] = v1.cross(v2);
     base_xyz[2] += origin;
+	*/
+	
+	//header file BaseTrans(SbVec3d from_base[3], SbVec3d to_base[3], SdMatrix &m)
     BaseTrans(base_ref, base_xyz, mSpheresToLeds);
 }
 
@@ -2482,13 +2515,13 @@ void Motion::calc_animationTrafoObj(double dStep, int ledobjnr)
 
 void Motion::calc_animationTrafoReal(double dStep, int objnr)
 {
-   SdMatrix m1, m2;
-   SbVec3d tmpled[6];
-   int camsysnr, i, j;
-   SbVec3d testvec, tmpvec;
-   SbVec3d ledvec[18];
-   long step;
-   int tmpRSnr1, tmpRSnr2;
+   SdMatrix m1, m2;			//4*4 matrix
+   SbVec3d tmpled[6];		//array for 6 bytes
+   int camsysnr, i, j;		//int var for camera system number, i and j
+   SbVec3d testvec, tmpvec;	//two arrays
+   SbVec3d ledvec[18];		//led array for [18]
+   long step;				//a long tye variable
+   int tmpRSnr1, tmpRSnr2;	//two int vars
 
    if (RSchanged > 0)	   //At first a matrix is calcurated based upon step 0.
    {

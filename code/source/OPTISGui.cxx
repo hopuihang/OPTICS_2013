@@ -2210,12 +2210,14 @@ Fl_Menu_Item OPTISGui::menu_MenuBarLEDViewer[] = {
  {"LED Control", 0,  (Fl_Callback*)OPTISGui::cb_WindowLEDControl, 0, 0, 0, 0, 14, 56},
  {"Reference LED Control", 0,  (Fl_Callback*)OPTISGui::cb_WindowLEDControl2, 0, 0, 0, 0, 14, 56},
  {0},
-
+  {"pointer", 0,  0, 0, 64, 0, 0, 14, 56},
+ {0},
  {"Help", 0,  0, 0, 64, 0, 0, 14, 56},
  {"Manual", 0xffbe,  (Fl_Callback*)OPTISGui::cb_HelpManual, 0, 128, 0, 0, 14, 56},
  {"About OPTIS", 0,  (Fl_Callback*)OPTISGui::cb_HelpAbout, 0, 0, 0, 0, 14, 56},
  {0},
  {0}
+
 };
 Fl_Menu_Item* OPTISGui::menuFile = OPTISGui::menu_MenuBarLEDViewer + 0;
 Fl_Menu_Item* OPTISGui::FileNewPatient = OPTISGui::menu_MenuBarLEDViewer + 1;
@@ -2309,6 +2311,7 @@ Fl_Menu_Item* OPTISGui::WindowLEDControl2 = OPTISGui::menu_MenuBarLEDViewer + 10
 Fl_Menu_Item* OPTISGui::menuHelp = OPTISGui::menu_MenuBarLEDViewer + 104;
 Fl_Menu_Item* OPTISGui::HelpManual = OPTISGui::menu_MenuBarLEDViewer + 105;
 Fl_Menu_Item* OPTISGui::HelpAbout = OPTISGui::menu_MenuBarLEDViewer + 106;
+//Fl_Menu_Item* OPTISGui::menupointer = OPTISGui::menu_MenuBarLEDViewer + 107;
 
 inline void OPTISGui::cb_RecMotionBtn_i(Fl_Button*, void*) {
   ObjectData *tmpdata;
