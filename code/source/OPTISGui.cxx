@@ -2103,6 +2103,8 @@ void OPTISGui::cb_HelpAbout(Fl_Menu_* o, void* v) {
   ((OPTISGui*)(o->parent()->user_data()))->cb_HelpAbout_i(o,v);
 }
 
+
+//menuitem setup
 Fl_Menu_Item OPTISGui::menu_MenuBarLEDViewer[] = {
  {"File", 0,  0, 0, 64, 0, 0, 14, 56},
  {"New Subject", 0x4006e,  (Fl_Callback*)OPTISGui::cb_FileNewPatient, 0, 128, 0, 0, 14, 56},
@@ -2210,11 +2212,13 @@ Fl_Menu_Item OPTISGui::menu_MenuBarLEDViewer[] = {
  {"LED Control", 0,  (Fl_Callback*)OPTISGui::cb_WindowLEDControl, 0, 0, 0, 0, 14, 56},
  {"Reference LED Control", 0,  (Fl_Callback*)OPTISGui::cb_WindowLEDControl2, 0, 0, 0, 0, 14, 56},
  {0},
-  {"pointer", 0,  0, 0, 64, 0, 0, 14, 56},
- {0},
  {"Help", 0,  0, 0, 64, 0, 0, 14, 56},
  {"Manual", 0xffbe,  (Fl_Callback*)OPTISGui::cb_HelpManual, 0, 128, 0, 0, 14, 56},
  {"About OPTIS", 0,  (Fl_Callback*)OPTISGui::cb_HelpAbout, 0, 0, 0, 0, 14, 56},
+ {0},
+ {"Pointer", 0,  0, 0, 64, 0, 0, 14, 56},
+ {"MIPT", 0,  (Fl_Callback*)OPTISGui::cb_MIPT, 0, 0, 0, 0, 14, 56},
+  {"MIPT cancel", 0,  (Fl_Callback*)OPTISGui::cb_MIPTcancel, 0, 0, 0, 0, 14, 56},
  {0},
  {0}
 
@@ -5349,7 +5353,6 @@ if (!fl_ask(st))
    return;
 
 if ((tmpdata->type%1000) == 220)
-   objview->clearObject(prevdata);
 objview->clearObject(tmpdata);
 TrajectoryWindow->hide(); 
 objview->redraw(); //original
@@ -10177,7 +10180,7 @@ for (i=0; i<numLEDs; i++)
    objview->objlist->transform->translation.setValue((-ledRadius*(numLEDs-1))+(2.0*ledRadius*i), 0.0, 0.0);
    objview->objlist->type = 100+i;//100-117 is LED
 }
-
+/*
 //edit 29/11/2013
 // testing
 //just the header, dont common it out "ObjectViewer::addSphereObject(char *labelstring, SbVec3f *xyz, int numSpheres, float radius, char coordSys)"
@@ -10190,7 +10193,7 @@ xyz.setValue(damx ,damy ,damz);//dummy variable
  objview->addSphereObject(&st[0], &xyz, 1, ledRadius, 1);//adding object
  //objview->objlist->transform->translation.setValue((-ledRadius*(numLEDs-1))+(2.0*ledRadius*i), 0.0, 0.0);
  //  objview->objlist->type = 100+i;//100-117 is LED
-
+ */
 xyz.setValue(0.0, 0.0, 0.0);
 objview->addCubeObject("FOV", &xyz, 1, 200.0, 200.0, 200.0);
 objview->objlist->material->diffuseColor.setValue(1.0, 1.0, 0.0);
@@ -11188,4 +11191,40 @@ nlist=i;
 //   for (i=0; i<nlist; i++)printf("select st[%d] %s\n",i,st[i] );
    sprintf(st2,"%s  %s",st[val],scnfile->anatomy);
    MvmNameWinInput->value(st2);
+}
+
+//edit 6/12/2013
+inline void OPTISGui::cb_MIPT_i(Fl_Menu_*, void*) 
+{
+	
+ SbVec3f  xyz;
+char     st[256];
+int      mipt_x,mipt_y,mipt_z;
+
+
+	mipt_x = 50;
+	mipt_y = 50;
+	mipt_z = 50;
+
+xyz.setValue(mipt_x, mipt_y, mipt_z);
+sprintf(st, "point of MIPT");
+objview->addSphereObject(&st[0], &xyz, 1, ledRadius, 0);
+
+}
+void OPTISGui::cb_MIPT(Fl_Menu_*o,void*v)
+{
+((OPTISGui*)(o->parent()->user_data()))->cb_MIPT_i(o,v);
+
+}
+
+inline void OPTISGui::cb_MIPTcancel_i(Fl_Menu_*, void*) 
+{
+
+//MIPT->clear();
+	  
+}
+void OPTISGui::cb_MIPTcancel(Fl_Menu_*o,void*v)
+{
+((OPTISGui*)(o->parent()->user_data()))->cb_MIPTcancel_i(o,v);
+
 }

@@ -1714,6 +1714,21 @@ public:
 private:
   inline void cb_ct_Ok_i(Fl_Return_Button*, void*);
   static void cb_ct_Ok(Fl_Return_Button*, void*);
+  
+  //edit 6/12/2013
+  //setting up the MIPT
+public:
+  static Fl_Menu_Item *MIPT;
+private:
+  inline void cb_MIPT_i(Fl_Menu_*, void*);
+  static void cb_MIPT(Fl_Menu_*, void*);
+  //cancel the MIPT
+  public:
+  static Fl_Menu_Item *MIPTcancel;
+private:
+  inline void cb_MIPTcancel_i(Fl_Menu_*, void*);
+  static void cb_MIPTcancel(Fl_Menu_*, void*);
+
 public:
   Fl_Double_Window *ConnectInfoWin;
   Fl_Group *ConInfoWinTxt1;
