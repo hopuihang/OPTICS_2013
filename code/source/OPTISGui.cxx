@@ -10586,7 +10586,6 @@ if (LEDControl2Browser->size() < 115)
       LEDControl2Browser->add(&st[0]);
    }
 }
-//created a tmpdata pointer and pointing to objectlist
   ObjectData *tmpdata;
   tmpdata = objview->objlist;
   i = 0;
@@ -10594,7 +10593,6 @@ if (LEDControl2Browser->size() < 115)
 	iled1 = LED1Choice->value();
 	iled2 = LED2Choice->value();
 
-//show up how to obtain coordinate(I guess -sam)
    for (i=0; i<18; i++)
    {
 		xyz[i][0] = mainAnimation->led[i][mainAnimation->animation_step][0];
@@ -11199,7 +11197,7 @@ nlist=i;
 inline void OPTISGui::cb_MIPT_i(Fl_Menu_*, void*) 
 {
 	
- SbVec3d  mipt_xyz[20];
+ SbVec3f  mipt_xyz[20];
  SbVec3f  cal_mipt;
  ObjectData *tmpdata;
  char     st[256];
@@ -11207,6 +11205,7 @@ inline void OPTISGui::cb_MIPT_i(Fl_Menu_*, void*)
  int      i;
  
  tmpdata = objview->objlist;
+
  
   for (i=0; i<18; i++)
    {
@@ -11214,17 +11213,37 @@ inline void OPTISGui::cb_MIPT_i(Fl_Menu_*, void*)
 		mipt_xyz[i][1] = mainAnimation->led[i][mainAnimation->animation_step][1];
 		mipt_xyz[i][2] = mainAnimation->led[i][mainAnimation->animation_step][2];
 	}
-
+	
 
  //9/12/2013 insert calculation
-
-	mipt_x = mipt_xyz[11][0]+50;
-	mipt_y = mipt_xyz[11][1]+50;
-	mipt_z = mipt_xyz[11][2]+50;
+ 
+	mipt_x = mipt_xyz[6][0];
+	mipt_y = mipt_xyz[6][1];
+	mipt_z = mipt_xyz[6][2]+50;
 
 cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
-sprintf(st, "point of MIPT");
+sprintf(st, "point of MIPT LED <7>");
 objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
+//10/12/2013 try with more point
+
+	mipt_x = mipt_xyz[8][0];
+	mipt_y = mipt_xyz[8][1];
+	mipt_z = mipt_xyz[8][2]+50;
+
+
+cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
+sprintf(st, "point of MIPT LED <9>");
+objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
+
+
+	mipt_x = mipt_xyz[10][0];
+	mipt_y = mipt_xyz[10][1];
+	mipt_z = mipt_xyz[10][2]+50;
+
+cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
+sprintf(st, "point of MIPT <11>");
+objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
+
 
 }
 void OPTISGui::cb_MIPT(Fl_Menu_*o,void*v)

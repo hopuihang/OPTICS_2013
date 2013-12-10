@@ -496,6 +496,7 @@ void Motion::BaseTrans(SbVec3d from_base[3], SbVec3d to_base[3], SdMatrix &m)
    int i ;
    
    //make up dammy variable edited 2/12/2013
+   /*
    for (i=0; i<3; i++)
     {
        base_from[i][0] = 0;
@@ -508,8 +509,8 @@ void Motion::BaseTrans(SbVec3d from_base[3], SbVec3d to_base[3], SdMatrix &m)
        base_to[i][1] = 100;
        base_to[i][2] = 100;
     }
-
-	/*
+	*/
+	
    v1 = from_base[1] - from_base[0];
    v2 = from_base[2] - from_base[0];
    base_from[0] = v1;
@@ -524,7 +525,7 @@ void Motion::BaseTrans(SbVec3d from_base[3], SbVec3d to_base[3], SdMatrix &m)
    base_to[0].normalize();
    base_to[2].normalize();
    base_to[1] = base_to[2].cross(base_to[0]);
-   */
+   
    Vec2BaseTrans(base_from, base_to, from_base[0], to_base[0], m);
 }
 
