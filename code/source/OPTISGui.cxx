@@ -11196,17 +11196,29 @@ nlist=i;
 //edit 6/12/2013
 inline void OPTISGui::cb_MIPT_i(Fl_Menu_*, void*) 
 {
-	
+ SbVec3d vd1, vd2, vd3, vd4, testvec;
+SbVec3d vd5, vd6;
+SbVec3f vf;
+SbVec3f *linexyz, posxyz;
+SbVec3d src,dst;
+SbVec3d src_leds[18];//3*18 matrix
+SdMatrix md;
+SdMatrix m1,m2;
+SdMatrix mo1;
+SbVec3d tmp1, tmp2;
  SbVec3f  mipt_xyz[20];
  SbVec3f  cal_mipt;
  ObjectData *tmpdata;
- char     st[256];
+ int i,j, numSteps, oldRSnr, objnr;
+char st[256];
+ char     string[256];
  int      mipt_x,mipt_y,mipt_z;
- int      i;
- 
+ int refcoord;	
+
+ // refcoord = TrajRefChoice->value();//change that to object 1
  tmpdata = objview->objlist;
 
- 
+ mainAnimation;
   for (i=0; i<18; i++)
    {
 		mipt_xyz[i][0] = mainAnimation->led[i][mainAnimation->animation_step][0];
@@ -11225,7 +11237,7 @@ cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
 sprintf(st, "point of MIPT LED <7>");
 objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
 //10/12/2013 try with more point
-
+/*
 	mipt_x = mipt_xyz[8][0];
 	mipt_y = mipt_xyz[8][1];
 	mipt_z = mipt_xyz[8][2]+50;
@@ -11243,6 +11255,105 @@ objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
 cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
 sprintf(st, "point of MIPT <11>");
 objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
+*/
+////////////////////// insert the trajectory by the coordinate system///////////////////////////////////////////////////////
+
+testvec.setValue(-120.0, -120.0, -120.0);
+
+if ((FirstStep->value() < 1) || (FirstStep->value() > mainAnimation->num_steps))
+   FirstStep->value(1);
+if ((LastStep->value() < FirstStep->value()) || (LastStep->value() > mainAnimation->num_steps))
+   LastStep->value(mainAnimation->num_steps);
+
+//calcurate XYZ  070104
+
+   refcoord = 1;//change that to object 1
+   mainAnimation->calc_animationTrafoObj(mainAnimation->animation_step, (refcoord-1));
+   mo1 = mainAnimation->mObj[0].inverse();
+   tmp1.setValue(mipt_x, mipt_y, mipt_z);//source changed for LED 7 +50 z axis 12/12/2013
+   mo1.multMatrixVec(tmp1, tmp2);
+   src.setValue(tmp2[0], tmp2[1], tmp2[2]);
+   dst.setValue(mipt_x, mipt_y, mipt_z);//distance changed for LED 7 +50 z axis 12/12/2013
+
+
+numSteps = LastStep->value() - FirstStep->value() + 1;
+linexyz = new SbVec3f[2*(numSteps-1)];
+ oldRSnr = mainAnimation->RSnr;
+ mainAnimation->setRSnr(1-1);			//change ref to obj 1
+objnr = 2-1;							//change motion to obj 2
+for (j=0; j<18; j++)
+	src_leds[j] = mainAnimation->led[j][mainAnimation->animation_step];
+for (i=0; i<(numSteps-1); i++)
+{
+   mainAnimation->calc_animationTrafo(i+FirstStep->value()-1, objnr);
+   mainAnimation->animation_trafo[TrajCamSysChoice->value()].multMatrixVec(src, vd1);//store output to vd1
+   md = mainAnimation->fov_trafo[TrajCamSysChoice->value()].inverse();
+   md.multMatrixVec(vd1, vd3);
+   
+   mainAnimation->calc_animationTrafo(i+FirstStep->value(), objnr);
+   mainAnimation->animation_trafo[TrajCamSysChoice->value()].multMatrixVec(src, vd2);
+   md = mainAnimation->fov_trafo[TrajCamSysChoice->value()].inverse();
+   md.multMatrixVec(vd2, vd4);
+   
+   if (RSFOV->value() > 0) //Reference system is "FOV"
+   {
+      vd1 = vd3;
+      vd2 = vd4;
+   }
+   linexyz[2*i].setValue(vd1[0], vd1[1], vd1[2]);
+   linexyz[2*i+1].setValue(vd2[0], vd2[1], vd2[2]);
+}
+sprintf(string, "%s", TrajectoryName->value());
+objview->addLineObject(&st[0], linexyz, (numSteps-1), 2*(numSteps-1));
+objview->objlist->type = 220 + 1000*TrajCamSysChoice->value();
+objview->objlist->startStep = FirstStep->value()-1;
+objview->objlist->stopStep = LastStep->value()-1;
+objview->objlist->point = dst; //070104
+objview->objlist->camSys = TrajCamSysChoice->value();
+objview->objlist->motionOfObject = 2-1; //motion obj chante to 2
+objview->objlist->reference = 1-1;		//ref obj change to 1
+for (j=0; j<18; j++)
+objview->objlist->point_leds[j] = src_leds[j];
+ mainAnimation->setRSnr(oldRSnr);
+
+sprintf(st, "Actual Position of mipt haha", TrajectoryName->value());
+posxyz.setValue(0.0, 0.0, 0.0);
+objview->addSphereObject(&st[0], &posxyz, 1, ledRadius, 0);
+
+objview->objlist->type = 221 + 1000*TrajCamSysChoice->value();
+objview->objlist->point = dst; //070104
+objview->objlist->camSys = TrajCamSysChoice->value();
+objview->objlist->motionOfObject = 2-1;	//motion obj chante to 2
+objview->objlist->reference = 1-1;		//ref obj change to 1
+for (j=0; j<18; j++)
+objview->objlist->point_leds[j] = src_leds[j];
+
+TrajectoryWindow->hide();
+objview->orderChildren();
+applyMotion(-1);
+
+delete[] linexyz;
+
+for (j=0; j<18; j+=2)
+printf("point(%2d): %9.3f\t%9.3f\t%9.3f\n",(j+1),objview->objlist->point_leds[j][0]
+	   ,objview->objlist->point_leds[j][1],objview->objlist->point_leds[j][2]);
+
+setObjectEditorObjects2();
+
+oldobjcoord = 2; //motion obj chante to 2
+oldrefcoord = 1;	//ref obj change to 1
+
+switch (oldRSsysnr)//070105
+{
+   case -1: RSFOV->do_callback(MenuBarLEDViewer);  break;
+   case  0: RSObj1->do_callback(MenuBarLEDViewer); break;
+   case  1: RSObj2->do_callback(MenuBarLEDViewer); break;
+   case  2: RSObj3->do_callback(MenuBarLEDViewer); break;
+   case  3: RSObj4->do_callback(MenuBarLEDViewer); break;
+   case  4: RSObj5->do_callback(MenuBarLEDViewer); break;
+   case  5: RSObj6->do_callback(MenuBarLEDViewer); break;
+   default: RSFOV->do_callback(MenuBarLEDViewer);  break;
+};
 
 
 }
