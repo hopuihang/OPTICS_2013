@@ -11210,7 +11210,7 @@ SbVec3d tmp1, tmp2;
  SbVec3f  cal_mipt;
  ObjectData *tmpdata;
  int i,j, numSteps, oldRSnr, objnr;
-char st[256];
+ char st[256];
  char     string[256];
  int      mipt_x,mipt_y,mipt_z;
  int refcoord;	
@@ -11232,12 +11232,14 @@ char st[256];
 	mipt_x = mipt_xyz[6][0];
 	mipt_y = mipt_xyz[6][1];
 	mipt_z = mipt_xyz[6][2]+50;
-
+//dummy point remove
+/*
 cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
 sprintf(st, "point of MIPT LED <7>");
 objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
+
 //10/12/2013 try with more point
-/*
+
 	mipt_x = mipt_xyz[8][0];
 	mipt_y = mipt_xyz[8][1];
 	mipt_z = mipt_xyz[8][2]+50;
@@ -11270,6 +11272,7 @@ if ((LastStep->value() < FirstStep->value()) || (LastStep->value() > mainAnimati
    refcoord = 1;//change that to object 1
    mainAnimation->calc_animationTrafoObj(mainAnimation->animation_step, (refcoord-1));
    mo1 = mainAnimation->mObj[0].inverse();
+   //here should be setting up the source point
    tmp1.setValue(mipt_x, mipt_y, mipt_z);//source changed for LED 7 +50 z axis 12/12/2013
    mo1.multMatrixVec(tmp1, tmp2);
    src.setValue(tmp2[0], tmp2[1], tmp2[2]);
