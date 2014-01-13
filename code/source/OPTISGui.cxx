@@ -5197,7 +5197,7 @@ void OPTISGui::cb_Tbtn_cancel(Fl_Button* o, void* v) {
 }
 
 inline void OPTISGui::cb_Tbtn_ok_i(Fl_Return_Button*, void*) {
-  // Trajektorie anhand Koordinaten einfügen 
+  // Trajektorie anhand Koordinaten einfï¿½gen 
   // insert the trajectory by the coordinate system
 SbVec3d vd1, vd2, vd3, vd4, testvec;
 SbVec3d vd5, vd6;
@@ -5365,7 +5365,7 @@ void OPTISGui::cb_Tbtn_del(Fl_Button* o, void* v) {
 
 // Edit Trajectories OK Button
 inline void OPTISGui::cb_Tbtn_ok2_i(Fl_Return_Button*, void*) {
-  // Trajektoriendaten ändern
+  // Trajektoriendaten ï¿½ndern
 	//trajectory change
 
 SbVec3d vd1, vd2, vd3, vd4, testvec, tmp1;
@@ -5575,7 +5575,7 @@ void OPTISGui::cb_Tbtn_cancel2(Fl_Button* o, void* v) {
 }
 
 inline void OPTISGui::cb_Tbtn_ok3_i(Fl_Return_Button*, void*) {
-  // Trajektorie einer LED einfügen (insert LED trajectory)
+  // Trajektorie einer LED einfï¿½gen (insert LED trajectory)
 
 int i, camnr, lednr, type;
 ObjectData *tmpdata;
@@ -11215,149 +11215,153 @@ SbVec3d tmp1, tmp2;
  int      mipt_x,mipt_y,mipt_z;
  int refcoord;	
 
+  printf("MIPT system operation progress:\n") ;
  // refcoord = TrajRefChoice->value();//change that to object 1
  tmpdata = objview->objlist;
 
  mainAnimation;
+
+ 
   for (i=0; i<18; i++)
    {
 		mipt_xyz[i][0] = mainAnimation->led[i][mainAnimation->animation_step][0];
 		mipt_xyz[i][1] = mainAnimation->led[i][mainAnimation->animation_step][1];
 		mipt_xyz[i][2] = mainAnimation->led[i][mainAnimation->animation_step][2];
-	}
-	
 
+	}
+
+	 printf("Obtained the coordinates of all LEDS\n") ;
+  
  //9/12/2013 insert calculation
- 
+ //LED<7>
 	mipt_x = mipt_xyz[6][0];
 	mipt_y = mipt_xyz[6][1];
 	mipt_z = mipt_xyz[6][2]+50;
+
+	  printf("setting up dummy variable from LED <7> by z-axis + 50\n") ;
+
+
 //dummy point remove
-/*
+
 cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
 sprintf(st, "point of MIPT LED <7>");
 objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
 
-//10/12/2013 try with more point
 
-	mipt_x = mipt_xyz[8][0];
-	mipt_y = mipt_xyz[8][1];
-	mipt_z = mipt_xyz[8][2]+50;
-
-
-cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
-sprintf(st, "point of MIPT LED <9>");
-objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
-
-
-	mipt_x = mipt_xyz[10][0];
-	mipt_y = mipt_xyz[10][1];
-	mipt_z = mipt_xyz[10][2]+50;
-
-cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
-sprintf(st, "point of MIPT <11>");
-objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
-*/
 ////////////////////// insert the trajectory by the coordinate system///////////////////////////////////////////////////////
-
+ 
 testvec.setValue(-120.0, -120.0, -120.0);
-
+  printf("start the <first step> and <last step> processing\n") ;
 if ((FirstStep->value() < 1) || (FirstStep->value() > mainAnimation->num_steps))
    FirstStep->value(1);
 if ((LastStep->value() < FirstStep->value()) || (LastStep->value() > mainAnimation->num_steps))
    LastStep->value(mainAnimation->num_steps);
-
+ printf("finished the <first step> and <last step> processing\n") ;
 //calcurate XYZ  070104
 
-   refcoord = 1;//change that to object 1
+  printf("setting up dummy point to the src and dst\n") ;
+   
+  refcoord = 1;//change that to object 1
    mainAnimation->calc_animationTrafoObj(mainAnimation->animation_step, (refcoord-1));
-   mo1 = mainAnimation->mObj[0].inverse();
-   //here should be setting up the source point
-   tmp1.setValue(mipt_x, mipt_y, mipt_z);//source changed for LED 7 +50 z axis 12/12/2013
+   mo1 = mainAnimation->mObj[0].inverse();//here is using object 0 (maybe)???????
+   tmp1.setValue(mipt_x,mipt_y,mipt_z);//source changed for LED 7 +50 z axis 12/12/2013
    mo1.multMatrixVec(tmp1, tmp2);
    src.setValue(tmp2[0], tmp2[1], tmp2[2]);
-   dst.setValue(mipt_x, mipt_y, mipt_z);//distance changed for LED 7 +50 z axis 12/12/2013
+   dst.setValue(mipt_x,mipt_x,mipt_x);//distance changed for LED 7 +50 z axis 12/12/2013
 
+   printf("finish setting up dummy point to the src and dst\n") ;
 
+   printf("obtaining data to calculate vd1 and vd3 & vd 2 and vd4\n") ;
+   
 numSteps = LastStep->value() - FirstStep->value() + 1;
 linexyz = new SbVec3f[2*(numSteps-1)];
  oldRSnr = mainAnimation->RSnr;
- mainAnimation->setRSnr(1-1);			//change ref to obj 1
-objnr = 2-1;							//change motion to obj 2
+ mainAnimation->setRSnr(1-1);      //change ref to obj 1
+objnr = 2-1;              //change motion to obj 2
 for (j=0; j<18; j++)
-	src_leds[j] = mainAnimation->led[j][mainAnimation->animation_step];
+  src_leds[j] = mainAnimation->led[j][mainAnimation->animation_step];
 for (i=0; i<(numSteps-1); i++)
 {
    mainAnimation->calc_animationTrafo(i+FirstStep->value()-1, objnr);
-   mainAnimation->animation_trafo[TrajCamSysChoice->value()].multMatrixVec(src, vd1);//store output to vd1
-   md = mainAnimation->fov_trafo[TrajCamSysChoice->value()].inverse();
+   //TrajcamSyschoice change to 0
+   mainAnimation->animation_trafo[0].multMatrixVec(src, vd1);//store output to vd1,TrajcamSyschoice change to 0
+   md = mainAnimation->fov_trafo[0].inverse();   //TrajcamSyschoice change to 0
    md.multMatrixVec(vd1, vd3);
    
    mainAnimation->calc_animationTrafo(i+FirstStep->value(), objnr);
-   mainAnimation->animation_trafo[TrajCamSysChoice->value()].multMatrixVec(src, vd2);
-   md = mainAnimation->fov_trafo[TrajCamSysChoice->value()].inverse();
+   mainAnimation->animation_trafo[0].multMatrixVec(src, vd2);   //TrajcamSyschoice change to 0
+   md = mainAnimation->fov_trafo[0].inverse();   //TrajcamSyschoice change to 0
    md.multMatrixVec(vd2, vd4);
-   
+	printf("finished obtaining data to calculate vd1 and vd3 & vd 2 and vd4\n") ;
+
+    printf("check if reference syststem is FOV or not, I guess that is not\n") ;
+
    if (RSFOV->value() > 0) //Reference system is "FOV"
    {
+	   printf("nah i mean,Yes it is FOV\n") ;
       vd1 = vd3;
       vd2 = vd4;
    }
    linexyz[2*i].setValue(vd1[0], vd1[1], vd1[2]);
    linexyz[2*i+1].setValue(vd2[0], vd2[1], vd2[2]);
 }
-sprintf(string, "%s", TrajectoryName->value());
+printf("analysing MIPT Trajectory\n") ;
+
+sprintf(string, "MIPT Traj", TrajectoryName->value());
 objview->addLineObject(&st[0], linexyz, (numSteps-1), 2*(numSteps-1));
-objview->objlist->type = 220 + 1000*TrajCamSysChoice->value();
+objview->objlist->type = 220 + 1000*0;   //TrajcamSyschoice change to 0
 objview->objlist->startStep = FirstStep->value()-1;
 objview->objlist->stopStep = LastStep->value()-1;
 objview->objlist->point = dst; //070104
-objview->objlist->camSys = TrajCamSysChoice->value();
+objview->objlist->camSys = 0;   //TrajcamSyschoice change to 0
 objview->objlist->motionOfObject = 2-1; //motion obj chante to 2
-objview->objlist->reference = 1-1;		//ref obj change to 1
+objview->objlist->reference = 1-1;    //ref obj change to 1
 for (j=0; j<18; j++)
 objview->objlist->point_leds[j] = src_leds[j];
  mainAnimation->setRSnr(oldRSnr);
 
-sprintf(st, "Actual Position of mipt haha", TrajectoryName->value());
+printf("anaylysing MIPT the actual point\n") ;
+sprintf(st, "Actual Position of mipt", TrajectoryName->value());
 posxyz.setValue(0.0, 0.0, 0.0);
 objview->addSphereObject(&st[0], &posxyz, 1, ledRadius, 0);
 
-objview->objlist->type = 221 + 1000*TrajCamSysChoice->value();
+objview->objlist->type = 221 + 1000*0;   //TrajcamSyschoice change to 0
 objview->objlist->point = dst; //070104
-objview->objlist->camSys = TrajCamSysChoice->value();
-objview->objlist->motionOfObject = 2-1;	//motion obj chante to 2
-objview->objlist->reference = 1-1;		//ref obj change to 1
+objview->objlist->camSys = 0;   //TrajcamSyschoice change to 0
+objview->objlist->motionOfObject = 2-1;  //motion obj change to 2
+objview->objlist->reference = 1-1;    //ref obj change to 1
 for (j=0; j<18; j++)
 objview->objlist->point_leds[j] = src_leds[j];
 
+printf("trajectorywindow go to hide and objview go to orderChildren\n") ;
 TrajectoryWindow->hide();
 objview->orderChildren();
 applyMotion(-1);
 
 delete[] linexyz;
-
+printf("point of LED naming\n") ;
 for (j=0; j<18; j+=2)
 printf("point(%2d): %9.3f\t%9.3f\t%9.3f\n",(j+1),objview->objlist->point_leds[j][0]
-	   ,objview->objlist->point_leds[j][1],objview->objlist->point_leds[j][2]);
+     ,objview->objlist->point_leds[j][1],objview->objlist->point_leds[j][2]);
 
-setObjectEditorObjects2();
-
-oldobjcoord = 2; //motion obj chante to 2
-oldrefcoord = 1;	//ref obj change to 1
-
-switch (oldRSsysnr)//070105
-{
-   case -1: RSFOV->do_callback(MenuBarLEDViewer);  break;
-   case  0: RSObj1->do_callback(MenuBarLEDViewer); break;
-   case  1: RSObj2->do_callback(MenuBarLEDViewer); break;
-   case  2: RSObj3->do_callback(MenuBarLEDViewer); break;
-   case  3: RSObj4->do_callback(MenuBarLEDViewer); break;
-   case  4: RSObj5->do_callback(MenuBarLEDViewer); break;
-   case  5: RSObj6->do_callback(MenuBarLEDViewer); break;
-   default: RSFOV->do_callback(MenuBarLEDViewer);  break;
-};
-
+ setObjectEditorObjects2();
+ printf("oldobjcoord is 2 and old ref coord is 1\n") ;
+ oldobjcoord = 2; //motion obj change to 2
+ oldrefcoord = 1;  //ref obj change to 1
+ printf("case switching of oldRSsysnr\n") ;
+ switch (oldRSsysnr)//070105
+ {
+    case -1: RSFOV->do_callback(MenuBarLEDViewer);  break;
+    case  0: RSObj1->do_callback(MenuBarLEDViewer); break;
+    case  1: RSObj2->do_callback(MenuBarLEDViewer); break;
+    case  2: RSObj3->do_callback(MenuBarLEDViewer); break;
+    case  3: RSObj4->do_callback(MenuBarLEDViewer); break;
+    case  4: RSObj5->do_callback(MenuBarLEDViewer); break;
+    case  5: RSObj6->do_callback(MenuBarLEDViewer); break;
+    default: RSFOV->do_callback(MenuBarLEDViewer);  break;
+ };
+ printf("MIPT function end1\n") ;
+ 
 
 }
 void OPTISGui::cb_MIPT(Fl_Menu_*o,void*v)
