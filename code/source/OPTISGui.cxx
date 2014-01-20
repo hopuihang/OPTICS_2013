@@ -11216,10 +11216,11 @@ SbVec3d tmp1, tmp2;
  int refcoord;	
 
 
-  printf("add back of LED<9> stationary dummy variable\n");
-  printf("add second method to detect LED<9> location\n");
-  printf("after added back the if function check value of 1st ,last step and stepnums, 9.3f changed\n");
-  printf("second method modified\n");
+  printf("get rid of LED<9> stationary dummy variable - fail\n");
+  printf("add second method to detect LED<9> location - fail\n");
+  printf("after added back the if function check value of 1st ,last step and stepnums, 9.3f changed - fail\n");
+  printf("get rid of all first step and last step- fail\n");
+  printf("changed tranjectories name- fail\n");
 
  // refcoord = TrajRefChoice->value();//change that to object 1
  //tmpdata = objview->objlist;
@@ -11227,6 +11228,7 @@ SbVec3d tmp1, tmp2;
  //mainAnimation;
 
  //first method
+  
   for (i=0; i<18; i++)
    {
 		mipt_xyz[i][0] = mainAnimation->led[i][mainAnimation->animation_step][0];
@@ -11255,24 +11257,25 @@ printf("using second method to see location of LED<9>: %9.3f\t%9.3f\t%9.3f\n",ob
 //dummy point remove
 
 cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
-sprintf(st, "point of MIPT LED <9>");
-objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
-
+//objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
+//delete[] linexyz; //maybe useful 
 
 ////////////////////// insert the trajectory by the coordinate system///////////////////////////////////////////////////////
  
 testvec.setValue(-120.0, -120.0, -120.0);
   printf("start the <first step> and <last step> processing\n") ;
-if ((FirstStep->value() < 1) || (FirstStep->value() > mainAnimation->num_steps)) //try to get FIRSTstep fix
+
+if ((FirstStep->value() < 1) || (FirstStep->value() > mainAnimation->num_steps)) //
    FirstStep->value(1);
 if ((LastStep->value() < FirstStep->value()) || (LastStep->value() > mainAnimation->num_steps))// try to get last step fix
    LastStep->value(mainAnimation->num_steps);
+   
  printf("finished the <first step> and <last step> processing\n") ;
 //calcurate XYZ  070104
 
   printf("setting up dummy point to the src and dst\n") ;
    
-  refcoord = 2;//change that to object 2
+   refcoord = 2;//change that to object 2
    mainAnimation->calc_animationTrafoObj(mainAnimation->animation_step, (refcoord-1));
    mo1 = mainAnimation->mObj[0].inverse();//here is using object 0 (maybe)???????
    tmp1.setValue(0,20,0);//source changed to (0, 20, 0)
@@ -11285,10 +11288,10 @@ if ((LastStep->value() < FirstStep->value()) || (LastStep->value() > mainAnimati
 
    printf("obtaining data to calculate vd1 and vd3 & vd 2 and vd4\n") ;
    
-numSteps = LastStep->value() - FirstStep->value() + 1;
- printf("value of first step,last step and numStep: %9.3f\t%9.3f\t%9.3f\n",FirstStep->value(),LastStep->value(),numSteps);
+   numSteps = LastStep->value() - FirstStep->value() + 1; //get rid of step
+   printf("value of first step,last step and numStep: %9.3f\t%9.3f\t%9.3f\n",FirstStep->value(),LastStep->value(),numSteps);
 
-linexyz = new SbVec3f[2*(numSteps-1)];
+  linexyz = new SbVec3f[2*(numSteps-1)];
 
  oldRSnr = mainAnimation->RSnr;
 
@@ -11329,16 +11332,17 @@ for (i=0; i<(numSteps-1); i++)
 */
 
 printf("analysing MIPT Trajectory\n") ;
-
-sprintf(string, "can you see me?", TrajectoryName->value());
+//maybe we dont need the function below in real time
+sprintf(st, "Trajectory of MIPT test");
 objview->addLineObject(&st[0], linexyz, (numSteps-1), 2*(numSteps-1));
 objview->objlist->type = 220 + 1000*0;   //TrajcamSyschoice change to 0
-objview->objlist->startStep = FirstStep->value()-1;
-objview->objlist->stopStep = LastStep->value()-1;
+objview->objlist->startStep = FirstStep->value()-1;				
+objview->objlist->stopStep = LastStep->value()-1;					 
 objview->objlist->point = dst; //070104
 objview->objlist->camSys = 0;   //TrajcamSyschoice change to 0
-objview->objlist->motionOfObject = 2-1; //motion obj chante to 2
-objview->objlist->reference = 1-1;    //ref obj change to 1
+objview->objlist->motionOfObject = 1-1; //motion obj change to 1
+objview->objlist->reference = 2-1;    //ref obj change to 2
+
 for (j=0; j<18; j++)
 objview->objlist->point_leds[j] = src_leds[j];
  mainAnimation->setRSnr(oldRSnr);
@@ -11356,7 +11360,7 @@ objview->objlist->reference = 2-1;    //ref obj change to 2
 for (j=0; j<18; j++)
 objview->objlist->point_leds[j] = src_leds[j];
 
-printf("trajectorywindow go to hide and objview go to orderChildren\n") ;
+printf("trajectorywindow go to hide and obj-view go to orderChildren\n") ;
 TrajectoryWindow->hide();
 objview->orderChildren();
 applyMotion(-1);
@@ -11369,8 +11373,8 @@ printf("point(%2d): %9.3f\t%9.3f\t%9.3f\n",(j+1),objview->objlist->point_leds[j]
 
  setObjectEditorObjects2();
  printf("oldobjcoord is 1 and old ref coord is 2\n") ;
- oldobjcoord = 1; //motion obj change to 1
- oldrefcoord = 2;  //ref obj change to 2
+ oldobjcoord = 1; //old motion obj change to 1
+ oldrefcoord = 2;  //old ref obj change to 2
  printf("case switching of oldRSsysnr\n") ;
  switch (oldRSsysnr)//070105
  {
