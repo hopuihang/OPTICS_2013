@@ -2318,7 +2318,7 @@ Fl_Menu_Item* OPTISGui::HelpAbout = OPTISGui::menu_MenuBarLEDViewer + 106;
 //Fl_Menu_Item* OPTISGui::menupointer = OPTISGui::menu_MenuBarLEDViewer + 107;
 
 inline void OPTISGui::cb_RecMotionBtn_i(Fl_Button*, void*) {
-  ObjectData *tmpdata;
+ ObjectData *tmpdata;
 int i, num, j;
 char c, message[260];
 char st[256];
@@ -2326,10 +2326,15 @@ char st[256];
 PlayBackwardMotionBtn->value(0);
 StartMotionBtn->value(0);
 StopMotionBtn->value(0);
+printf(" record botton motion process:\n");
+printf("startmotion btn value = %d\n",StartMotionBtn->value());
+printf("stopmotion btn value = %d\n",StopMotionBtn->value());
 //abcd1234
 //060814
 if (RecMotionBtn->value() == 0)
 {
+	printf(" RecmotionBtn = 0\n");
+	printf("you have clicked on stop record btn!\n");
    StopMotionBtn->value(0);
    printf("stop button\n");
    for (i=0; i<260; i++)
@@ -2343,12 +2348,14 @@ if (RecMotionBtn->value() == 0)
 
 if (RecMotionBtn->value() < 1)
 {
+	printf(" RecmotionBtn < 1\n");
    trajOk = 0;
    return;
 }
 
 if (csoc.connected == 0)
 {
+	printf("csoc.connected == 0\n");
    RecMotionBtn->value(0);
    cameraConnect->do_callback(MenuBarLEDViewer);
    return;
@@ -2361,11 +2368,17 @@ do
 {
    c = csoc.SendMsg(&message[0], 260);
    if (c < 0)
+   {
        socketStopped = 1;
+     printf(" C = csoc.SendMsg\n");
+	   printf(" c < 0\n");
+   }
    Fl::check();
 } while ((c < 1)&&(socketStopped == 0)&&(csoc.connected>0));
+printf(" (c < 1)&&(socketStopped == 0)&&(csoc.connected>0)\n");
    if(socketStopped > 0)
    {
+	   printf(" socketStopped > 0\n");
       csoc.CloseSocket();
       CameraOkBox->color(1);
       CameraOkBox->redraw();
@@ -2373,6 +2386,7 @@ do
    }
    if (csoc.connected == 0)
    {
+	   printf(" csoc.connected == 0\n");
       CameraOkBox->color(1);
       CameraOkBox->redraw();
       return;
@@ -2386,11 +2400,18 @@ for (j=0; j<(numCams/3); j++)//each camera systems
    {
       num = mainAnimation->led[(j*18)+i].getNum();
       if (num > 1)
+	  {
          mainAnimation->led[(j*18)+i].deleteValues(0, num-1);
+		printf("num >1 first loop\n");
+	  }
    }
    num = mainAnimation->click[j].getNum();
    if (num > 1)
+   {
       mainAnimation->click[j].deleteValues(0, num-1);
+	  printf("num > 1 second loop\n");
+   }
+
 }
 num = mainAnimation->click[0].getNum();
 mainAnimation->num_steps = num;
@@ -2430,11 +2451,12 @@ void OPTISGui::cb_RecMotionBtn(Fl_Button* o, void* v) {
 }
 
 inline void OPTISGui::cb_LoadMotionBtn_i(Fl_Button*, void* v) {
-  char    st[256], filename[256], comment[256];
+char    st[256], filename[256], comment[256];
 dirent  **list;	
 int     n, i, len, maxlen, j;
 FILE    *readfile;
 
+printf(" load motion process:");
 PlayBackwardMotionBtn->value(0);
 StartMotionBtn->value(0);
 StopMotionBtn->value(0);
@@ -2443,6 +2465,7 @@ trajOk = 0;
 
 if (csoc.connected > 0)
 {
+	printf("csoc.connected > 0\n");
    if (!fl_ask("Do you really want to disconnect the cameras and load a motion?"))
    {
       LoadMotionBtn->value(0);
@@ -2466,8 +2489,12 @@ for(i=2; i<n; i++)
 //   if ((st[len-3]!='e')&&(st[len-2]!='n')&&(st[len-1]!='t'))
    if (((st[len-3]=='m')&&(st[len-2]=='v')&&(st[len-1]=='m'))||(st[len-3]=='.'))
    {
+	   printf("((st[len-3]=='m')&&(st[len-2]=='v')&&(st[len-1]=='m'))||(st[len-3]=='.')\n");
       if (len > maxlen)
+	  {
          maxlen = len;
+	  printf("len > maxlen\n");
+	  }
    }
 }
 MotionBrowser->clear();
@@ -2479,18 +2506,23 @@ for(i=2; i<n; i++)
 //   if ((len>0)&&(st[len-3]!='e')&&(st[len-2]!='n')&&(st[len-1]!='t'))
    if (((len>0)&&(st[len-3]=='m')&&(st[len-2]=='v')&&(st[len-1]=='m'))||((len>0)&&(st[len-3]=='.')))
    {
+	   printf("(st[len-3]=='m')&&(st[len-2]=='v')&&(st[len-1]=='m'))||(st[len-3]=='.')\n");
       for(j=len; ((j<maxlen+5)&&(j<254)); j++)
          st[j] = ' ';
       if ((maxlen+5)<256)
+	  {
          st[maxlen+5] = '\0';
+	  printf("(maxlen+5)<256\n");
+	  }
       else
          st[255] = '\0';
       sprintf(filename, "%s/%s/%s", pref->datapath, scnfile->scanmov.path, list[i]->d_name);
       if((readfile = fopen(&filename[0], "rb")) != NULL)
       {
+		 printf("(readfile = fopen(&filename[0], rb)) != NULL)\n");
          fseek(readfile, 0, SEEK_SET);
          fread(comment, 256, 1, readfile);
-         comment[256] = '\0';
+         comment[255] = '\0';//256 -> 255
          fclose(readfile);
          strcat(st, comment);
       }
@@ -11212,15 +11244,15 @@ SbVec3d tmp1, tmp2;
  int i,j, numSteps, oldRSnr, objnr;
  char st[256];
  char     string[256];
- int      mipt_x,mipt_y,mipt_z;
+ float mipt_x,mipt_y,mipt_z;
  int refcoord;	
 
 
-  printf("get rid of LED<9> stationary dummy variable - fail\n");
+
   printf("add second method to detect LED<9> location - fail\n");
-  printf("after added back the if function check value of 1st ,last step and stepnums, 9.3f changed - fail\n");
-  printf("get rid of all first step and last step- fail\n");
-  printf("changed tranjectories name- fail\n");
+  printf("after added back the if function check value of 1st ,last step and stepnums - fail\n");
+
+  
 
  // refcoord = TrajRefChoice->value();//change that to object 1
  //tmpdata = objview->objlist;
@@ -11274,7 +11306,7 @@ if ((LastStep->value() < FirstStep->value()) || (LastStep->value() > mainAnimati
 //calcurate XYZ  070104
 
   printf("setting up dummy point to the src and dst\n") ;
-   
+
    refcoord = 2;//change that to object 2
    mainAnimation->calc_animationTrafoObj(mainAnimation->animation_step, (refcoord-1));
    mo1 = mainAnimation->mObj[0].inverse();//here is using object 0 (maybe)???????
@@ -11297,7 +11329,7 @@ if ((LastStep->value() < FirstStep->value()) || (LastStep->value() > mainAnimati
 
  mainAnimation->setRSnr(2-1);      //change ref to obj 2
 
-objnr = 1-1;						//change motion to obj 1
+objnr = 2-1;						//change motion to obj 2
 
 for (j=0; j<18; j++)
   src_leds[j] = mainAnimation->led[j][mainAnimation->animation_step];
@@ -11330,7 +11362,6 @@ for (i=0; i<(numSteps-1); i++)
    linexyz[2*i+1].setValue(vd2[0], vd2[1], vd2[2]);
 }
 */
-
 printf("analysing MIPT Trajectory\n") ;
 //maybe we dont need the function below in real time
 sprintf(st, "Trajectory of MIPT test");
@@ -11340,7 +11371,7 @@ objview->objlist->startStep = FirstStep->value()-1;
 objview->objlist->stopStep = LastStep->value()-1;					 
 objview->objlist->point = dst; //070104
 objview->objlist->camSys = 0;   //TrajcamSyschoice change to 0
-objview->objlist->motionOfObject = 1-1; //motion obj change to 1
+objview->objlist->motionOfObject = 2-1; //motion obj change to 2
 objview->objlist->reference = 2-1;    //ref obj change to 2
 
 for (j=0; j<18; j++)
@@ -11355,7 +11386,7 @@ objview->addSphereObject(&st[0], &posxyz, 1, ledRadius, 0);
 objview->objlist->type = 221 + 1000*0;   //TrajcamSyschoice change to 0
 objview->objlist->point = dst; //070104
 objview->objlist->camSys = 0;   //TrajcamSyschoice change to 0
-objview->objlist->motionOfObject = 1-1;  //motion obj change to 1
+objview->objlist->motionOfObject = 2-1;  //motion obj change to 2
 objview->objlist->reference = 2-1;    //ref obj change to 2
 for (j=0; j<18; j++)
 objview->objlist->point_leds[j] = src_leds[j];
@@ -11373,7 +11404,7 @@ printf("point(%2d): %9.3f\t%9.3f\t%9.3f\n",(j+1),objview->objlist->point_leds[j]
 
  setObjectEditorObjects2();
  printf("oldobjcoord is 1 and old ref coord is 2\n") ;
- oldobjcoord = 1; //old motion obj change to 1
+ oldobjcoord = 2; //old motion obj change to 2
  oldrefcoord = 2;  //old ref obj change to 2
  printf("case switching of oldRSsysnr\n") ;
  switch (oldRSsysnr)//070105
