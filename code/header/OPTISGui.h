@@ -52,7 +52,7 @@ class OPTISGui {
   Preferences *pref;
   char WindowTitle[256];
   int recStep, trajStep, trajOk;
-  int RecTimeflag;//recording flag
+  int RecTimeflag;///recording flag
   int filecount;
   int timecount;
   int oldRSsysnr;
