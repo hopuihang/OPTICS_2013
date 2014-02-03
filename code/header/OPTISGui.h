@@ -42,6 +42,9 @@ class OPTISGui {
   float oldZoom;
   int oldW;
   int oldH;
+  //my variable
+  int mipt_flag;
+  ObjectData *mipt_data;
   ObjectData *objdata;
   Motion *mainAnimation;
   Motion *secondAnimation;
