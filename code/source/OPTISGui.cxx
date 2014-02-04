@@ -11242,10 +11242,13 @@ SbVec3d tmp1, tmp2;
 int i,j, numSteps, oldRSnr, objnr;
 char st[256]; 
 int refcoord;	
+ObjectData *tmpdata, *prevdata;
+ObjectData *tmpdata_1, *prevdata_1;
+char tst[256];
 
  SbVec3f  mipt_xyz[20];							// local variables added for MIPT 29/01/2014
  SbVec3f  cal_mipt;								// recording
- ObjectData *tmpdata;							//
+
  char     mipt_dir[256];							//
 // float mipt_x,mipt_y,mipt_z;					//
  SdMatrix obj3_obj2, pnt_obj3, obj2_fov;		//
@@ -11258,8 +11261,62 @@ int refcoord;
  
   printf("add second method to detect LED<9> location - fail\n");
   printf("after added back the if function check value of 1st ,last step and stepnums - fail\n");
+  if(mipt_flag == 1)
+  {
+	  sprintf(st, "Do you want to recalculate MIPT?");
+	  if (!fl_ask(st))
+		{
+			return;
+		}
+	else
+	{
+		/*
+		//RecMotionBtn->do_callback();
+		(OPTISGui*)->MIPTcancel->do_callback();
+	cb_MIPTcancel_i(); 
+	*/
+		i = -1;
+tmpdata = mipt_data;
 
-  mipt_flag = 0;
+while (tmpdata!= NULL) 
+{
+
+
+prevdata = tmpdata;
+
+
+while ((tmpdata != NULL) && (i < oldTrajChoice))
+{
+//   if (((tmpdata->type%1000) >= 200)&&((tmpdata->type%1000) <= 220))
+   if ((((tmpdata->type%1000) >= 200)&&((tmpdata->type%1000) <= 220))||((tmpdata->type%1000) == 222)) //060817
+      i++;
+   if (i < oldTrajChoice)
+   {
+      prevdata = tmpdata;
+	  tmpdata = tmpdata->next;
+   }
+   
+}
+
+
+
+if ((tmpdata->type%1000) == 220)
+   objview->clearObject(prevdata);
+objview->clearObject(tmpdata);
+TrajectoryWindow->hide(); 
+objview->redraw(); //original
+
+setObjectEditorObjects2();
+break;
+}
+
+	 sprintf(mipt_dir, "%s/%s/", pref->datapath, scnfile->scanmov.path);
+	 strcat(mipt_dir,"\\MIPT_coord.txt");
+	 remove(mipt_dir);
+	}
+	 
+  }
+
  sprintf(mipt_dir, "%s/%s/", pref->datapath, scnfile->scanmov.path);
  strcat(mipt_dir,"\\MIPT_coord.txt");
  printf("%s\n",mipt_dir);
@@ -11291,8 +11348,7 @@ if (!fl_ask(st))
 
 	}
 	
- // sprintf(st, "%s/%s/", pref->datapath, scnfile->scanmov.path);
- //sprintf(string, "%s", pref->datapath);
+
 
 //  printf("Datapath = %s",string);
 //*********  Calculate coordinate transformations from Pointer to Object 3 to Object 2 (mandible)   29/01/2014  *******
@@ -11335,33 +11391,9 @@ if (!fl_ask(st))
 //    mainAnimation->BaseTrans(&from_sys[0], &to_sys[0], obj3_obj2); 
 
 //*********  end of transformation calculation  *********************************************************************
-  /*
-  //second method
-  for (j=0; j<18; j++)
-  {
-objview->objlist->point_leds[j] = src_leds[j];
-  }
-	 printf("Obtained the coordinates of all LEDS\n") ;
-  
- //9/12/2013 insert calculation
- //LED<7>
-	mipt_x = mipt_xyz[8][0];
-	mipt_y = mipt_xyz[8][1];
-	mipt_z = mipt_xyz[8][2];
 
-printf("using first method to see location of LED<9>: %9.3f\t%9.3f\t%9.3f\n",mipt_x,mipt_y,mipt_z);
-
-printf("using second method to see location of LED<9>: %9.3f\t%9.3f\t%9.3f\n",objview->objlist->point_leds[8][0]
-/    ,objview->objlist->point_leds[8][1],objview->objlist->point_leds[8][2]);
-
-//dummy point remove
-
-cal_mipt.setValue(mipt_x, mipt_y, mipt_z);
-objview->addSphereObject(&st[0], &cal_mipt, 1, ledRadius, 0);
-//delete[] linexyz; //maybe useful 
-*/
 	ofstream myfile (mipt_dir);
-	//mipt_obj2[0], mipt_obj2[1], mipt_obj2[2]
+
     myfile <<mipt_obj2[0] <<endl;//rmber to change back 
     myfile <<mipt_obj2[1] <<endl;
 	myfile <<mipt_obj2[2] <<endl;
@@ -11380,14 +11412,14 @@ if ((FirstStep->value() < 1) || (FirstStep->value() > mainAnimation->num_steps))
 if ((LastStep->value() < FirstStep->value()) || (LastStep->value() > mainAnimation->num_steps))// try to get last step fix
    LastStep->value(mainAnimation->num_steps);
    
-// printf("finished the <first step> and <last step> processing\n") ;
+
 //calcurate XYZ  070104
 
   printf("setting up dummy point to the src and dst\n") ;
 
    refcoord = 2;//change that to object 2
    mainAnimation->calc_animationTrafoObj(mainAnimation->animation_step, (refcoord-1));
-   mo1 = mainAnimation->mObj[0].inverse();//here is using object 0 (maybe)???????
+   mo1 = mainAnimation->mObj[0].inverse();
    //mipt_obj2[0], mipt_obj2[1], mipt_obj2[2]
    tmp1.setValue(mipt_obj2[0], mipt_obj2[1], mipt_obj2[2]);//source changed to (0, 20, 0)
    printf("source changed to (0, 20, 0)\n") ;
@@ -11498,51 +11530,14 @@ printf("point(%2d): %9.3f\t%9.3f\t%9.3f\n",(j+1),objview->objlist->point_leds[j]
     case  5: RSObj6->do_callback(MenuBarLEDViewer); break;
     default: RSFOV->do_callback(MenuBarLEDViewer);  break;
  };
+
  mipt_data = objview->objlist;
+
  mipt_flag = 1;
+ 
  printf("MIPT function end\n") ;
  
- /////////////////////////////////file creating, writing and reading/////////////////////////////////////////////
 
- /*
-
- sprintf(mipt_dir, "%s/%s/", pref->datapath, scnfile->scanmov.path);
- strcat(mipt_dir,"\\MIPT_coord.txt");
- printf("%s\n",mipt_dir);
- 
- ifstream myfile (mipt_dir);
-  if (myfile.is_open())
-  {
-	  myfile >> recall_x >>recall_y>>recall_z;
-	  printf("%f\t%f\t%f\t\nthis result is reading from file",recall_x,recall_y,recall_z);
-	 
-  }
-   
-  else 
-  {
-	ofstream myfile (mipt_dir);
-	//mipt_obj2[0], mipt_obj2[1], mipt_obj2[2]
-    myfile << mipt_x <<endl;//rmber to change back 
-    myfile << mipt_y <<endl;
-	myfile << mipt_z <<endl;
-  }
-
-    myfile.close();
-
-  
-/*
-std::fstream myfile("D:\\data.txt", std::ios_base::in);
-
-    float a, b, c, d, e, f;
-
-    myfile >> a >> b >> c >> d >> e >> f;
-
-    printf("%f\t%f\t%f\t%f\t%f\t%f\n", a, b, c, d, e, f);
-
-    getchar();
-
-    return 0;
-	*/
 
   return;
 
@@ -11568,89 +11563,20 @@ if(mipt_flag != 1)
 {
 	sprintf(st, "you haven't insert MIPT");
 	fl_alert(st);
-		sprintf(st, "Do you want to Delete saved MIPT coordinate file?", tst);
-if (!fl_ask(st))
-{
-   return;
-}
-else
-{
- sprintf(mipt_dir, "%s/%s/", pref->datapath, scnfile->scanmov.path);
- strcat(mipt_dir,"\\MIPT_coord.txt");
- remove(mipt_dir);
- return;
-}
+	return;
+		
 }
 
 tmpdata = mipt_data;
 while (tmpdata != NULL) 
 {
 
-/*
-//   if (((tmpdata->type%1000) >= 200) && ((tmpdata->type%1000) <= 220))
-   if ((((tmpdata->type%1000) >= 200) && ((tmpdata->type%1000) <= 220))||((tmpdata->type%1000) == 222))
-   {
-      objview->getLabel(tmpdata, &st[0]);
-      TrajNameChoice->add(&st[0], 0, 0, 0, 0);
-      i++;
-      tmpdata->oldpoint = tmpdata->point;
-      tmpdata->oldStart = tmpdata->startStep;
-      tmpdata->oldStop = tmpdata->stopStep;
-      tmpdata->oldCamSys = tmpdata->camSys;
-   }
-   tmpdata = tmpdata->next;
-}
-
-if (i == 0)
-   return;
-
-tmpdata = objview->objlist;
-//while ((tmpdata != NULL)&& (((tmpdata->type%1000) < 200) || ((tmpdata->type%1000) > 220)))
-while ((tmpdata != NULL)&& (((tmpdata->type%1000) < 200) || ((tmpdata->type%1000) > 222) || ((tmpdata->type%1000) == 221)))
-   tmpdata = tmpdata->next;
-XCoord->value(tmpdata->point[0]);
-YCoord->value(tmpdata->point[1]);
-ZCoord->value(tmpdata->point[2]);
-FirstStep->value(tmpdata->startStep+1);
-LastStep->value(tmpdata->stopStep+1);
-TotalSteps->value(mainAnimation->num_steps);
-TrajNameChoice->value(0);
-TrajCamSysChoice->value(tmpdata->camSys);
-
-if (((tmpdata->type%1000)>199)&&((tmpdata->type%1000)<218)||((tmpdata->type%1000)==222))
-   {
-      TrajObjChoice->deactivate();
-      TrajRefChoice->deactivate();
-   }
-else
-   {
-      TrajObjChoice->activate();
-      TrajRefChoice->activate();
-   }
-if ((tmpdata->type%1000)==222) //070108
-   {
-      TrajObjChoice->deactivate();
-      TrajRefChoice->deactivate();
-   }
-
-TrajObjChoice->value(tmpdata->motionOfObject+1);
-TrajRefChoice->value(tmpdata->reference+1);
-
-
-
-oldTrajChoice = 0;
-TrajectoryWindow->position(
-   LEDViewer->x()+((LEDViewer->w()-TrajectoryWindow->w())/2),
-   LEDViewer->y()+((LEDViewer->h()-TrajectoryWindow->h())/2));
-TrajectoryWindow->show();
-*/
 
 prevdata = tmpdata;
 
-
 while ((tmpdata != NULL) && (i < oldTrajChoice))
 {
-//   if (((tmpdata->type%1000) >= 200)&&((tmpdata->type%1000) <= 220))
+
    if ((((tmpdata->type%1000) >= 200)&&((tmpdata->type%1000) <= 220))||((tmpdata->type%1000) == 222)) //060817
       i++;
    if (i < oldTrajChoice)
@@ -11665,18 +11591,7 @@ objview->getLabel(tmpdata, &tst[0]);
 sprintf(st, "Delete %s?", tst);
 if (!fl_ask(st))
 {
-	sprintf(st, "Do you want to Delete saved MIPT coordinate file?", tst);
-if (!fl_ask(st))
-{
-   return;
-}
-else
-{
- sprintf(mipt_dir, "%s/%s/", pref->datapath, scnfile->scanmov.path);
- strcat(mipt_dir,"\\MIPT_coord.txt");
- remove(mipt_dir);
- return;
-}
+	return;
 
 
 }
@@ -11692,24 +11607,8 @@ setObjectEditorObjects2();
 //MIPT->clear();
 mipt_flag = 0;
 
-sprintf(st, "Do you want to Delete saved MIPT coordinate file?", tst);
-if (!fl_ask(st))
-   return;
+return;
 
-
- sprintf(mipt_dir, "%s/%s/", pref->datapath, scnfile->scanmov.path);
- strcat(mipt_dir,"\\MIPT_coord.txt");
- remove(mipt_dir);
- return;
-/*
-if ((tmpdata->type%1000) == 220)
-   objview->clearObject(prevdata);
-objview->clearObject(tmpdata);
-TrajectoryWindow->hide(); 
-objview->redraw(); //original
-
-setObjectEditorObjects2();
-*/	  
 }
 }
 
