@@ -45,6 +45,7 @@ class OPTISGui {
   //my variable
   int mipt_flag;
   ObjectData *mipt_data;
+  ObjectData *mipt_data_1;
   ObjectData *objdata;
   Motion *mainAnimation;
   Motion *secondAnimation;
