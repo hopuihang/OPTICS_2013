@@ -44,6 +44,9 @@ class OPTISGui {
   int oldH;
   //my variable
   int mipt_flag;
+  int mipt_enable;
+  int mipt_con_enable;
+  int mipt_load_enable;
   ObjectData *mipt_data;
   ObjectData *mipt_data_1;
   ObjectData *objdata;
